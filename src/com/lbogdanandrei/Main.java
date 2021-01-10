@@ -2,6 +2,8 @@ package com.lbogdanandrei;
 
 import java.io.File;
 
+import javax.swing.JOptionPane;
+
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
@@ -11,17 +13,34 @@ public class Main {
 
 	public static void main(String[] args) {
 		int nrOfRetry;
+		int nrOfConvertedFiles=0;
 		boolean isCompleted;
+		
+		File sourceDir = new File("Input");
+		if(!sourceDir.exists() || !sourceDir.isDirectory())
+		{
+			JOptionPane.showMessageDialog(null,
+				    "Input folder not found",
+				    "Input error",
+				    JOptionPane.ERROR_MESSAGE);
+			System.exit(1);
+		}
+		File resultDir = new File("Output");
+		File[] toConvert = sourceDir.listFiles();
+		if(toConvert.length == 0)
+		{
+			JOptionPane.showMessageDialog(null,
+				    "Input folder is empty",
+				    "Input error",
+				    JOptionPane.ERROR_MESSAGE);
+			System.exit(1);
+		}
 		
 		System.setProperty("webdriver.chrome.driver","chromedriver.exe");
 		WebDriver driver = new ChromeDriver();
 		driver.get("https://www.onlineocr.net/");
 		
 		Actions action = new Actions(driver);
-		
-		File sourceDir = new File("Input");
-		File resultDir = new File("Output");
-		File[] toConvert = sourceDir.listFiles();
 		
 		for(File f:toConvert)
 		{
@@ -56,11 +75,16 @@ public class Main {
 				
 				FileExport fe = new FileExport(s, resultDir.getName(), f.getName()+".txt");
 				fe.start();
+				nrOfConvertedFiles++;
 				
 				driver.get("https://www.onlineocr.net/");
 			}
 		}
 		driver.close();
+		JOptionPane.showMessageDialog(null,
+			    "Converted " + nrOfConvertedFiles + " files",
+			    "Completed",
+			    JOptionPane.INFORMATION_MESSAGE);
 	}
 
 }
